@@ -1,8 +1,9 @@
 import docker
+import os
 
 def run_scraper_in_docker(url):
     """
-    Spins up a Docker container to run the scraper module and returns the output.
+    Spins up a Docker container, dynamically inserts the scraper module, scrapes the URL, and returns the output.
 
     Args:
         url (str): The URL to scrape.
@@ -12,21 +13,26 @@ def run_scraper_in_docker(url):
     """
     client = docker.from_env()
     try:
-        # Build the Docker image
-        client.images.build(path=".", tag="scraper_image")
-        # Run the Docker container
+        client.images.build(
+            path=".",
+            tag="ApexScraper",
+            dockerfile="Dockerfile"
+        )
         container = client.containers.run(
-            image="scraper_image",
-            command=["python", "scraper_module.py", url],
+            image="ApexScraper",
+            command=["python", "-c", f"import scraper_module; print(scraper_module.scrape_url_to_html('{url}'))"],
             detach=True,
             stdout=True,
             stderr=True
         )
+
         # Wait for the container to finish and get the logs
         container.wait()
         logs = container.logs().decode("utf-8")
+
         # Clean up the container
         container.remove()
+
         return logs
     except Exception as e:
         return f"An error occurred while running the scraper in Docker: {e}"
