@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.orchestrator
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+    networks:
+      - malware_detection_net
+    depends_on:
+      - docker-dind
+
+  docker-dind:
+    image: docker:dind
+    privileged: true
+    volumes:
+      - docker-sock:/var/run/docker.sock
+    networks:
+      - malware_detection_net
+
+networks:
+  malware_detection_net:
+    driver: bridge
+
+volumes:
+  malware_detection_volume:
+    driver: local
+  docker-sock:
