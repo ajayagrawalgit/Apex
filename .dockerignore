@@ -1,3 +1,5 @@
+﻿.git
+.gitignore
 __pycache__
 *.pyc
 *.pyo
@@ -8,10 +10,11 @@ __pycache__
 *.egg-info
 dist
 build
-.git
 .env
 .venv
-venv/
+venv
 *.log
 .DS_Store
 .pdf
+.pytest_cache
+node_modules
