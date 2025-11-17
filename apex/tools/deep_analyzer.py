@@ -54,7 +54,7 @@ def deep_safety_check(scraped: Dict, url: str, prior: Dict | None = None) -> Dic
     unsafe = 1 if reasons else 0
     ai_opinion = (
         "Additional checks found red flags; consider unsafe." if unsafe else
-        "No additional red flags found; appears safe, but remain cautious."
+        "No additional red flags found; appears safe"
     )
     return {
         "unsafe": unsafe,
