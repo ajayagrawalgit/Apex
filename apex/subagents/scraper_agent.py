@@ -8,7 +8,7 @@ def scrape_with_docker(url: str, timeout: int = 10) -> dict:
 
     human_summary = f"Scraping of {url} completed. Status: {raw_result.get("status", "unknown")} (HTTP {raw_result.get("status_code", "N/A")}). Content preview length: {len(raw_result.get("content", ""))} characters."
     print(f"[Scraper Agent] {human_summary}")
-    return {"raw_data": raw_result, "human_summary": human_summary}
+    return raw_result
 
 # scraper_tool = FunctionTool(func=run_scraper_in_container)
 

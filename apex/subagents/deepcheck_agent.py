@@ -3,15 +3,13 @@ from apex.tools.deep_analyzer import deep_safety_check
 
 def deep_check_agent(scraped: dict, url: str, prior: dict) -> dict:
     print(f"[DeepCheck Agent] Performing deep check for URL: {url}")
-    raw_scraped_data = scraped.get("raw_data", {})
-    raw_prior_data = prior.get("raw_data", {})
-    deep_check_result = deep_safety_check(scraped=raw_scraped_data, url=url, prior=raw_prior_data)
+    deep_check_result = deep_safety_check(scraped=scraped, url=url, prior=prior)
 
     unsafe_flag = deep_check_result.get("unsafe", 1)
     verdict_text = "safe" if unsafe_flag == 0 else "unsafe"
     human_summary = f"Deep check for {url} completed. Verdict: {verdict_text.upper()}. Reasons: {', '.join(deep_check_result.get("reasons", []))}. Insights: {', '.join(deep_check_result.get("insights", []))}."
     print(f"[DeepCheck Agent] {human_summary}")
-    return {"raw_data": deep_check_result, "human_summary": human_summary}
+    return deep_check_result
 
 # deepcheck_tool = FunctionTool(func=deep_safety_check)
 
