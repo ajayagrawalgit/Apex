@@ -2,7 +2,6 @@ import subprocess
 import json
 from pathlib import Path
 
-
 def _build_image(image: str = "apex-scraper:latest") -> dict:
     """
     Builds the scraper Docker image using the repo layout:
@@ -37,7 +36,6 @@ def run_scraper_in_container(url: str, timeout: int = 10, image: str = "apex-scr
     build = _build_image(image=image)
     if build.get("status") != "success":
         return build
-
     cmd = [
         "docker", "run", "--rm",
         image,
