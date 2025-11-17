@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# These paths are relative to the build context (apex/)
+COPY tools/scraper.py /app/scraper.py
+COPY tools/isolation.py /app/isolation.py
+
+# Install cloudscraper and its dependencies
+RUN pip install cloudscraper
+
+ENTRYPOINT ["python", "isolation.py"]

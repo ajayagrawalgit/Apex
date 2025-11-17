@@ -16,7 +16,7 @@ def apex_scraper(url: str, timeout: int = 10) -> dict:
         return {
             "status": "success",
             "status_code": resp.status_code,
-            "content": resp.text  # No slicing, returns the entire HTML
+            "content": resp.text
         }
     except Exception as e:
         return {
