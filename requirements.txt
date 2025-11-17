@@ -1,0 +1,3 @@
+google-adk>=1.14.0
+cloudscraper>=1.2.71
+docker>=6.1.0
