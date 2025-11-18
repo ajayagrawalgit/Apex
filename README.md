@@ -1027,70 +1027,6 @@ We're grateful to these amazing people who have contributed to Apex:
 
 Want to see your avatar here? [Contribute to the project!](#-contributing)
 
----
-
-## 🗺️ Roadmap
-
-### ✅ Completed
-- [x] Multi-agent architecture with Google ADK
-- [x] Pattern-based phishing detection
-- [x] Cryptocurrency scam detection
-- [x] Brand impersonation checks
-- [x] FastAPI REST API
-- [x] Docker containerization
-- [x] Google Cloud Run deployment
-- [x] Cloudflare bypass capabilities
-
-### 🚧 In Progress
-- [ ] Web-based UI dashboard
-- [ ] Chrome/Firefox browser extension
-- [ ] Real-time threat intelligence feed integration
-- [ ] Machine learning model for zero-day detection
-
-### 🔮 Planned Features
-- [ ] Historical threat database
-- [ ] User reputation system
-- [ ] Bulk URL scanning API
-- [ ] Webhook notifications
-- [ ] Custom rule builder (no-code)
-- [ ] Integration with SIEM platforms
-- [ ] Mobile app (iOS/Android)
-- [ ] PDF report generation
-- [ ] Multi-language support
-- [ ] Screenshot capture of suspicious sites
-- [ ] WHOIS lookup integration
-- [ ] SSL certificate validation
-- [ ] Automated sandbox execution
-- [ ] Threat hunting workflows
-- [ ] Community-sourced threat database
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 Ajay Agrawal
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-```
-
----
 
 ## 📞 Support
 
@@ -1133,7 +1069,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 
 If you discover a security vulnerability in Apex, please **DO NOT** open a public issue. Instead:
 
-1. Email security details to: [your-email@example.com]
+1. Email security details to: [ajayagrawalofficial@gmail.com]
 2. Include "SECURITY" in the subject line
 3. Provide detailed reproduction steps
 4. Allow 48-72 hours for initial response
