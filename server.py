@@ -1,45 +1,32 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-import uvicorn
 import os
+from fastapi import FastAPI
+from google.adk.cli.fast_api import get_fast_api_app
 
-app = FastAPI(title="Apex URL Safety Analyzer")
+# Use the path to your agent.py and subagents
+AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
+app_args = {
+    "agents_dir": AGENT_DIR,  # directory containing agent.py
+    "web": True              # enables ADK web interface
+}
 
-@app.get("/")
-async def root():
-    return {"message": "Apex URL Safety Analyzer API", "status": "running"}
+app: FastAPI = get_fast_api_app(**app_args)
 
-@app.post("/analyze")
-async def analyze_url(request: dict):
-    """
-    Analyze URL safety
-    Request body: {"url": "https://example.com"}
-    """
-    from apex.agent import root_agent # Lazy import
-
-    url = request.get("url")
-    if not url:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "URL is required"}
-        )
-    
-    try:
-        # Execute the root agent with the URL
-        result = await root_agent.run(
-            user_prompt=f"Analyze the safety of this URL: {url}"
-        )
-        return {"result": result}
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
+app.title = "Apex ADK Agent"
+app.description = "Apex: Malicious URL Analyzer with Google ADK web interface"
+app.version = "1.0.0"
 
 @app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+def health_check():
+    return {"status": "healthy", "service": "apex-adk-agent"}
+
+@app.get("/")
+def root():
+    return {
+        "service": "apex-adk-agent",
+        "docs": "/docs",
+        "health": "/health"
+    }
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
