@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import uvicorn
 import os
-from apex.agent import root_agent
 
 app = FastAPI(title="Apex URL Safety Analyzer")
 
@@ -16,6 +15,8 @@ async def analyze_url(request: dict):
     Analyze URL safety
     Request body: {"url": "https://example.com"}
     """
+    from apex.agent import root_agent # Lazy import
+
     url = request.get("url")
     if not url:
         return JSONResponse(

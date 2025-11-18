@@ -1,8 +1,8 @@
 from google.adk.agents import Agent
 # from google.adk.tools import FunctionTool
-from apex.subagents.scraper_agent import scraper_agent, scrape_website
-from apex.subagents.analyzer_agent import analyzer_agent_def, analyze_agent
-from apex.subagents.deepcheck_agent import deepcheck_agent, deep_check_agent
+from .subagents.scraper_agent import scraper_agent, scrape_website
+from .subagents.analyzer_agent import analyzer_agent_def, analyze_agent
+from .subagents.deepcheck_agent import deepcheck_agent, deep_check_agent
 
 root_agent = Agent(
     model="gemini-2.5-pro",
