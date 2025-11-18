@@ -1,9 +1,10 @@
 import re
-from typing import Dict, List
+from typing import Dict, List, Any, Optional
 import cloudscraper
 from urllib.parse import urlparse
 import json
 import requests
+import os
 
 # From agents/apex/tools/analyzer.py
 BAD_PATTERNS = [
@@ -26,7 +27,7 @@ URL_RED_FLAGS = [
 ]
 
 
-def analyze_scraped_data(scrape_result: Dict, url: str = "") -> Dict:
+def analyze_scraped_data(scrape_result: Dict[str, Any], url: str = "") -> Dict[str, Any]:
     """
     Analyze scraped data to assess safety.
     Returns a dict with:
@@ -99,8 +100,21 @@ def analyze_scraped_data(scrape_result: Dict, url: str = "") -> Dict:
         "indicators": indicators,
     }
 
+# Wrapper for easier automatic function calling from LLM (string content input)
+def analyze_scraped_text(content: str, url: str = "") -> Dict[str, Any]:
+    scrape_result: Dict[str, Any] = {
+        "status": "success",
+        "status_code": 200,
+        "content": content or "",
+    }
+    return analyze_scraped_data(scrape_result=scrape_result, url=url)
+
 # From agents/apex/tools/deep_analyzer.py
-def deep_safety_check(scraped: Dict, url: str, prior: Dict | None = None) -> Dict:
+def deep_safety_check(
+    scraped: Dict[str, Any],
+    url: str,
+    prior: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """
     Sub-agent: performs a deeper safety check on content judged safe by primary analyzer.
     It looks for additional red flags such as:
@@ -159,24 +173,37 @@ def deep_safety_check(scraped: Dict, url: str, prior: Dict | None = None) -> Dic
         "insights": insights,
     }
 
+# Wrapper for easier automatic function calling from LLM (string content input)
+def deep_safety_check_text(content: str, url: str, prior_json: str = "") -> Dict[str, Any]:
+    try:
+        prior: Optional[Dict[str, Any]] = json.loads(prior_json) if prior_json else None
+    except Exception:
+        prior = None
+    scraped = {
+        "status": "success",
+        "status_code": 200,
+        "content": content or "",
+    }
+    return deep_safety_check(scraped=scraped, url=url, prior=prior)
+
 # From agents/apex/subagents/scraper_agent.py
-def scrape_website(url: str, timeout: int = 10) -> dict:
+def scrape_website(url: str, timeout: int = 10) -> Dict[str, Any]:
     """
     Scrapes a website using cloudscraper and returns the content.
     """
-    scraper = cloudscraper.create_scraper()
     try:
-        response = scraper.get(url, timeout=timeout)
-        response.raise_for_status()  # Raise an exception for bad status codes
-        content = response.text
+        scraper = cloudscraper.create_scraper()
+        response = scraper.get(url, timeout=timeout, headers={"User-Agent": "Mozilla/5.0"})
+        response.raise_for_status()
+        content = (response.text or "")[:5000]
         status = "success"
         status_code = response.status_code
-        # Truncate content to match the original implementation's behavior
-        content = content[:5000]
-        human_summary = f"Scraping of {url} completed. Status: {status} (HTTP {status_code}). Content preview length: {len(content)} characters."
+        human_summary = (
+            f"Scraping of {url} completed. Status: {status} (HTTP {status_code}). Content preview length: {len(content)} characters."
+        )
         print(f"[Scraper Agent] {human_summary}")
         return {
-            "status": "success",
+            "status": status,
             "status_code": status_code,
             "content": content,
         }
@@ -203,7 +230,7 @@ def scrape_website(url: str, timeout: int = 10) -> dict:
         }
 
 # From agents/apex/subagents/analyzer_agent.py
-def analyze_agent(scraped: dict, url: str) -> dict:
+def analyze_agent(scraped: Dict[str, Any], url: str) -> Dict[str, Any]:
     print(f"[Analyzer Agent] Analyzing URL: {url}")
     analysis_result = analyze_scraped_data(scrape_result=scraped, url=url)
     unsafe_flag = analysis_result.get("unsafe", 1)
@@ -217,7 +244,7 @@ def analyze_agent(scraped: dict, url: str) -> dict:
     return analysis_result
 
 # From agents/apex/subagents/deepcheck_agent.py
-def deep_check_agent(scraped: dict, url: str, prior: dict) -> dict:
+def deep_check_agent(scraped: Dict[str, Any], url: str, prior: Dict[str, Any]) -> Dict[str, Any]:
     print(f"[DeepCheck Agent] Performing deep check for URL: {url}")
     deep_check_result = deep_safety_check(scraped=scraped, url=url, prior=prior)
 

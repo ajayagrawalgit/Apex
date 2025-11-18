@@ -6,6 +6,8 @@
 ![Deployment](https://img.shields.io/badge/Deployment-Docker-blue.svg)
 ![Tech](https://img.shields.io/badge/Tech-FastAPI-009688)
 
+Meet Apex — a lightweight, AI-assisted website safety checker. Paste a URL, and Apex fetches the page, flags common phishing/scam patterns, and explains the verdict in clear, human-friendly language. It’s fast for everyday checks and deep enough for power users, with a multi‑agent pipeline coordinating scraping, analysis, and deeper safety inspection.
+
 ## 📖 Table of Contents
 
 * [What is Apex?](#-what-is-apex)
@@ -206,7 +208,7 @@ BAD_PATTERNS = [
 # URL Analysis
 URL_RED_FLAGS = [
  r"\.(ru|cn|tk|pw|top|xyz)(/|$)", # Suspicious TLDs
- r" - ", # Punycode-like patterns
+ r"--", # Punycode-like patterns
 ]
 ```
 
@@ -285,18 +287,15 @@ elif score >= 2:
 **Agent Definition:**
 
 ```python
-root_agent = Agent(
- model="gemini-2.5-flash",
- name="root_agent",
- description="Agent that orchestrates sub-agents to scrape, analyze, and deep-check website safety.",
- instruction=(
-  "You are Apex, a helpful AI assistant. Your goal is to evaluate the safety of a website…"
-  "1) First, call `scrape_website(url)`…"
-  "2) Next, call `analyze_agent(scraped=scraped_result, url=url)`…"
-  "3) If `analysis_result.unsafe` is 0, proceed to call `deep_check_agent(…)`…"
-  "4) After all checks are complete, summarize the findings…"
- ),
- tools=[scrape_website, analyze_agent, deep_check_agent]
+from google.adk.agents import SequentialAgent
+from apex.sub_agents.scraper_agent import scraper_agent
+from apex.sub_agents.web_check_agent import web_check_agent
+from apex.sub_agents.deep_analysis_agent import deep_analysis_agent
+
+root_agent = SequentialAgent(
+    name="root_agent",
+    description="Agent that orchestrates sub-agents to scrape, analyze, and deep-check website safety.",
+    sub_agents=[scraper_agent, web_check_agent, deep_analysis_agent],
 )
 ```
 
@@ -433,6 +432,30 @@ Apex demonstrates how modern AI agent frameworks can be leveraged to build pract
 
 ## 🚀 Getting Started
 
+### ⚡ Quick Start
+
+1. Set your API key in `.env`:
+   
+   ```env
+   GOOGLE_API_KEY="your-google-api-key"
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run locally:
+
+   ```bash
+   uvicorn server:app --host 0.0.0.0 --port 8080 --reload
+   ```
+
+4. Open the dev UI / docs:
+   - http://localhost:8080/dev-ui
+   - http://localhost:8080/docs
+
 ### 👤 For Users
 
 1.  Deploy Apex using Docker or a cloud platform.
@@ -461,7 +484,7 @@ Apex demonstrates how modern AI agent frameworks can be leveraged to build pract
     ```
 5.  Access at `http://localhost:8080` (API docs at `http://localhost:8080/docs`).
 
-### \_🗂️ Repository Structure
+### _🗂️ Repository Structure
 
 ```
 apex/
@@ -479,5 +502,51 @@ apex/
 
 *Apex: Protecting the web, one URL at a time.* 🛡️
 
-```
-```
+---
+
+## 🧯 Troubleshooting
+
+- **Cloud Run: "Docker is not installed or not in PATH"**
+  - Cloud Run does not support Docker-in-Docker. Scraping runs in-process using `cloudscraper`.
+
+- **Function-calling errors (parameter parsing)**
+  - Use simple types (str/int/bool/float). Avoid Optional/Union in tool function signatures.
+  - This repo provides wrappers: `analyze_scraped_text`, `deep_safety_check_text`.
+
+- **Cloudflare challenge errors**
+  - Some sites are aggressively protected. Consider increasing timeout or adding retries.
+  - You may augment headers or consider proxying (respect ToS).
+
+## 🧪 Technicalities
+
+- **Stack**
+  - Python 3.11+
+  - Google ADK (multi‑agent framework)
+  - Gemini 2.5 Flash/Pro
+  - FastAPI + Uvicorn
+  - cloudscraper, requests
+
+- **Agents**
+  - Root coordinator: orchestrates sub‑agents
+  - Scraper: `scrape_website(url)`
+  - Analyzer: `analyze_scraped_text(content, url="")`
+  - Deep check: `deep_safety_check_text(content, url, prior_json="")`
+
+- **Data model**
+  - Analyzer/Deep outputs: `{ unsafe: 0|1, verdict, reasons[], insights[], indicators? }`
+  - Scraper output: `{ status, status_code, content }` (content truncated to 5000 chars)
+
+- **API & Deployment**
+  - FastAPI app (see [API Architecture](#-api-architecture))
+  - Dockerized; deployable to Cloud Run (no Docker‑in‑Docker)
+  - Env: `GOOGLE_API_KEY` required
+
+- **Constraints**
+  - Cloud Run disallows running `docker` inside the container; scraper runs in‑process
+  - Tool schemas simplified for automatic function calling (string params, no unions)
+
+- **Deep dive**
+  - Architecture: [Overview](#-architecture-overview)
+  - Components: [Core](#-core-components), [Root Orchestration](#-root-agent-orchestration)
+  - Patterns: [Bad patterns](#-core-components), [URL red flags](#-core-components)
+  - Examples: [Real‑world](#-real-world-implementation-examples)
